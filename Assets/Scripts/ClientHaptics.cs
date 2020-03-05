@@ -11,6 +11,7 @@ public class ClientHaptics : MonoBehaviour
     [SerializeField] private Hand _hand = Hand.LeftHand;
     private InputDevice input;
     private RealtimeTransform rtt;
+    private RealtimeTransform collisionRTT = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,11 +21,19 @@ public class ClientHaptics : MonoBehaviour
         input = InputDevices.GetDeviceAtXRNode(node);
 
     }
-    void OnTriggerEnter(Collider other) {
-        Debug.Log("Enter collision");
-        vibe(input);
+    void OnCollisionEnter(Collision collision) {
+        GameObject other = collision.gameObject;
+        RealtimeTransform otherRTT = other.GetComponent<RealtimeTransform>();
+        if (otherRTT) {
+            // may need to check if this is the local copy of the avatar
+            // current version works because clones collide on both clients but 
+            // this may cause bugs in the future
+            otherRTT.RequestOwnership();
+            collisionRTT = otherRTT;
+        }
+        vibe(input, 0.5f);
     }
-    private void vibe(InputDevice hand) {
+    private void vibe(InputDevice hand, float amplitude) {
         if (!rtt.isOwnedLocally) {
             return;
         }
@@ -32,15 +41,15 @@ public class ClientHaptics : MonoBehaviour
         if (hand.TryGetHapticCapabilities(out capabilities)) {
             if (capabilities.supportsImpulse) {
                 uint channel = 0;
-                float amplitude = 0.5f;
                 float duration = 1.0f;
                 hand.SendHapticImpulse(channel, amplitude, duration);
                 Debug.Log("We vibin");
             }
         }
     }
-    void OnTriggerExit(Collider other) {
-        Debug.Log("Exit collision");
+    void OnCollisionExit(Collision collision) {
+        // collisionRTT.ClearOwnership();
+        collisionRTT = null;
     }
     // Update is called once per frame
     void Update()
