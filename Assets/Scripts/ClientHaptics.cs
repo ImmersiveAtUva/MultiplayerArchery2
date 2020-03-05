@@ -19,7 +19,7 @@ public class ClientHaptics : MonoBehaviour
         // Start by figuring out which hand we're tracking
         XRNode node = _hand == Hand.LeftHand ? XRNode.LeftHand : XRNode.RightHand;
         input = InputDevices.GetDeviceAtXRNode(node);
-
+        
     }
     void OnCollisionEnter(Collision collision) {
         GameObject other = collision.gameObject;
