@@ -28,8 +28,10 @@ namespace Normal.Realtime {
             _realtime = GetComponent<Realtime>();
             _realtime.didConnectToRoom += DidConnectToRoom;
 
-            if (_localPlayer == null)
+            if (_localPlayer == null) {
                 _localPlayer = new RealtimeAvatar.LocalPlayer();
+                
+            }
 
             avatars = new Dictionary<int, RealtimeAvatar>();
         }
@@ -146,6 +148,9 @@ namespace Normal.Realtime {
 
             localAvatar.localPlayer = _localPlayer;
             localAvatar.deviceType = GetRealtimeAvatarDeviceTypeForLocalPlayer();
+
+            //quinns code
+            Camera.main.transform.parent = localAvatar.gameObject.transform;
         }
 
         public void DestroyAvatarIfNeeded() {
